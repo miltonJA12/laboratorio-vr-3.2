@@ -1,42 +1,56 @@
 
 import * as THREE from "three";
 
+// =============================================
+// NEXUS PHYSICS VR - PRÁCTICA 3.2
+// PANEL DE PUNTUACIÓN INMERSIVO
+// =============================================
+
 export function createHUD(scene) {
   const canvas = document.createElement("canvas");
+
   canvas.width = 1024;
   canvas.height = 768;
 
   const ctx = canvas.getContext("2d");
-  const texture = new THREE.CanvasTexture(canvas);
 
+  if (!ctx) {
+    throw new Error("No se pudo crear el Canvas del HUD.");
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
 
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    side: THREE.FrontSide,
+    transparent: false,
+    depthTest: true,
+    depthWrite: true
+  });
+
+  // Panel más pequeño para no tapar las mesas.
   const board = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.15, 1.61),
-    new THREE.MeshBasicMaterial({
-      map: texture,
-      side: THREE.DoubleSide,
-      transparent: true,
-      depthWrite: false
-    })
+    new THREE.PlaneGeometry(1.65, 1.24),
+    material
   );
 
-  board.position.set(0, 2.35, -2.75);
+  // Ubicado detrás de las mesas, por encima
+  // de la zona de manipulación de las figuras.
+  board.position.set(0, 2.45, -3.5);
+
+  // El frente mira hacia el eje Z positivo.
+  board.rotation.set(0, 0, 0);
+
+  board.renderOrder = 0;
   scene.add(board);
 
-  const categoryNames = {
-    esfera: "ESFERAS",
-    cubo: "CUBOS",
-    piramide: "PIRÁMIDES",
-    prisma: "PRISMAS"
-  };
-
-  const colors = {
-    esfera: "#38aaff",
-    cubo: "#ff647b",
-    piramide: "#ffd166",
-    prisma: "#55e6ac"
-  };
+  const categories = [
+    { id: "esfera", name: "ESFERAS", color: "#38aaff" },
+    { id: "cubo", name: "CUBOS", color: "#ff647b" },
+    { id: "piramide", name: "PIRÁMIDES", color: "#ffd166" },
+    { id: "prisma", name: "PRISMAS", color: "#55e6ac" }
+  ];
 
   function formatTime(seconds) {
     if (seconds === null || seconds === undefined) {
@@ -46,78 +60,148 @@ export function createHUD(scene) {
     const minutes = Math.floor(seconds / 60);
     const remaining = Math.floor(seconds % 60);
 
-    return `${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`;
+    return (
+      String(minutes).padStart(2, "0") +
+      ":" +
+      String(remaining).padStart(2, "0")
+    );
   }
 
-  function text(value, x, y, size = 32, color = "#ffffff") {
+  function drawText(
+    value,
+    x,
+    y,
+    size = 30,
+    color = "#ffffff",
+    align = "left"
+  ) {
     ctx.font = `bold ${size}px Arial`;
     ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.textBaseline = "middle";
     ctx.fillText(String(value), x, y);
   }
 
+  function roundedRect(x, y, w, h, radius, color) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, radius);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
   function render(state) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, 1024, 768);
 
     ctx.fillStyle = "#081323";
     ctx.fillRect(0, 0, 1024, 768);
 
     ctx.strokeStyle = "#38d9ff";
-    ctx.lineWidth = 8;
+    ctx.lineWidth = 7;
     ctx.strokeRect(8, 8, 1008, 752);
 
-    ctx.fillStyle = "#10243c";
-    ctx.fillRect(15, 15, 994, 100);
+    roundedRect(23, 22, 978, 93, 12, "#112b46");
 
-    text("NEXUS PHYSICS VR", 48, 78, 44, "#38d9ff");
+    drawText(
+      "NEXUS PHYSICS VR",
+      48, 70, 43, "#38d9ff"
+    );
 
-    text(
+    drawText(
       state.status.toUpperCase(),
-      755,
-      78,
-      27,
-      "#ffffff"
+      958, 70, 26, "#ffffff", "right"
     );
 
-    text("ACIERTOS", 48, 170, 30, "#9badc6");
-    text(`${state.correct}/20`, 48, 250, 76, "#ffffff");
+    // =========================================
+    // MÉTRICAS PRINCIPALES
+    // =========================================
 
-    text("ERRORES", 420, 170, 30, "#9badc6");
-    text(state.errors, 420, 250, 67, "#ff647b");
+    drawText("ACIERTOS", 55, 158, 26, "#9badc6");
+    drawText(
+      `${state.correct}/20`,
+      55, 226, 64, "#ffffff"
+    );
 
-    text("PRECISIÓN", 720, 170, 30, "#9badc6");
-    text(`${state.precision.toFixed(1)}%`, 720, 250, 51, "#55e6ac");
+    drawText("ERRORES", 405, 158, 26, "#9badc6");
+    drawText(
+      state.errors,
+      405, 226, 64, "#ff647b"
+    );
 
-    text("INTENTOS", 48, 312, 27, "#9badc6");
-    text(state.attempts, 205, 312, 30);
+    drawText("PRECISIÓN", 710, 158, 26, "#9badc6");
+    drawText(
+      `${state.precision.toFixed(1)}%`,
+      710, 226, 48, "#55e6ac"
+    );
 
-    text("TIEMPO", 465, 312, 27, "#9badc6");
-    text(formatTime(state.elapsed), 615, 312, 33);
+    roundedRect(35, 275, 954, 72, 10, "#10243c");
 
-    let y = 390;
+    drawText(
+      `INTENTOS: ${state.attempts}`,
+      65, 311, 29
+    );
 
-    for (const id of Object.keys(categoryNames)) {
-      const progress = state.progress[id] ?? 0;
-      const completedAt = state.completionTimes[id];
+    drawText(
+      `TIEMPO: ${formatTime(state.elapsed)}`,
+      600, 311, 29
+    );
 
-      text(categoryNames[id], 48, y, 30, colors[id]);
-      text(`${progress}/5`, 430, y, 30);
-      text(formatTime(completedAt), 650, y, 27, "#c8d9ee");
+    // =========================================
+    // CONTADORES INDIVIDUALES
+    // =========================================
 
-      y += 65;
-    }
+    drawText(
+      "CATEGORÍA",
+      55, 389, 25, "#9badc6"
+    );
 
-    ctx.fillStyle = "#10243c";
-    ctx.fillRect(24, 675, 976, 70);
+    drawText(
+      "PROGRESO",
+      495, 389, 25, "#9badc6"
+    );
 
-    ctx.font = "bold 26px Arial";
-    ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "center";
-    ctx.fillText(
-      state.message.slice(0, 65),
+    drawText(
+      "FINALIZACIÓN",
+      735, 389, 25, "#9badc6"
+    );
+
+    let y = 446;
+
+    categories.forEach(category => {
+      const count = state.progress[category.id] ?? 0;
+      const completion = state.completionTimes[category.id];
+
+      drawText(
+        category.name,
+        55, y, 29, category.color
+      );
+
+      drawText(
+        `${count}/5`,
+        520, y, 29
+      );
+
+      drawText(
+        formatTime(completion),
+        745, y, 27, "#d6e8ff"
+      );
+
+      y += 55;
+    });
+
+    // =========================================
+    // MENSAJE DEL JUEGO
+    // =========================================
+
+    roundedRect(26, 677, 972, 62, 10, "#12314c");
+
+    drawText(
+      (state.message || "").slice(0, 63),
       512,
-      719
+      708,
+      25,
+      "#ffffff",
+      "center"
     );
-    ctx.textAlign = "left";
 
     texture.needsUpdate = true;
   }
@@ -125,7 +209,7 @@ export function createHUD(scene) {
   function dispose() {
     scene.remove(board);
     board.geometry.dispose();
-    board.material.dispose();
+    material.dispose();
     texture.dispose();
   }
 
