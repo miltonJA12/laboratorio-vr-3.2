@@ -1,0 +1,27 @@
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+
+# Archivos temporales
+*.tmp
+*.log
+*.bak
+*.swp
+
+# Datos privados
+.env
+.env.*
+!.env.example
+
+# Dependencias locales no utilizadas
+node_modules/
+
+# Archivos comprimidos de respaldo
+*.zip
+*.rar
