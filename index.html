@@ -3,18 +3,23 @@
 <html lang="es-MX">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#081323">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <meta name="theme-color" content="#f6f3ed">
+
   <meta name="description"
-        content="Laboratorio inmersivo de clasificación geométrica con física real y seguimiento de manos para Meta Quest 3.">
+        content="Taller de Formas. Laboratorio universitario de clasificación geométrica con física y realidad virtual.">
 
-  <title>3.2 Interacción virtual | Laboratorio VR</title>
+  <title>Taller de Formas | Interacción virtual 3.2</title>
 
-  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <link rel="icon"
+        type="image/svg+xml"
+        href="./assets/favicon.svg">
 
   <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
   >
 
   <link rel="stylesheet" href="./css/style.css">
@@ -33,13 +38,16 @@
 <body>
 
   <header class="site-header">
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg">
       <div class="container">
         <a class="navbar-brand brand" href="#">
           <span class="brand-symbol">◈</span>
-          NEXUS <span class="brand-accent">PHYSICS VR</span>
+          Taller de <span class="brand-accent">Formas</span>
         </a>
-        <span class="nav-version">PRÁCTICA 3.2</span>
+
+        <span class="nav-version">
+          TecNM · Práctica 3.2
+        </span>
       </div>
     </nav>
   </header>
@@ -53,50 +61,60 @@
           <div class="col-lg-7">
             <div class="eyebrow">
               <span class="status-dot"></span>
-              LABORATORIO DE REALIDAD VIRTUAL
+              DESARROLLO DE SOLUCIONES EN AMBIENTES VIRTUALES
             </div>
 
             <h1>
-              Interacción
-              <span>virtual</span>
+              Aprender
+              <span>experimentando.</span>
             </h1>
 
             <p class="hero-description">
-              Explora un laboratorio inmersivo donde podrás
-              manipular veinte figuras geométricas utilizando
-              tus manos, experimentar con gravedad y colisiones,
-              y clasificar cada objeto en su recipiente correcto.
+              Un laboratorio interactivo para explorar el
+              comportamiento físico de los objetos y poner
+              a prueba la clasificación geométrica.
+              Veinte figuras, cuatro categorías y una
+              experiencia diseñada para realidad virtual.
             </p>
 
             <div class="hero-actions">
-              <a href="#laboratorio" class="btn btn-primary-vr">
-                Explorar laboratorio
+              <a class="btn btn-primary-vr" href="#laboratorio">
+                Abrir laboratorio
               </a>
 
-              <a href="#instrucciones" class="btn btn-outline-vr">
-                Ver instrucciones
+              <a class="btn btn-outline-vr" href="#instrucciones">
+                Cómo funciona
               </a>
             </div>
 
             <p class="compatibility-note">
-              Diseñado para Meta Quest 3 con WebXR Hand Tracking.
+              Vista previa disponible en computadora.
+              Experiencia inmersiva destinada a Meta Quest 3.
             </p>
           </div>
 
           <div class="col-lg-5">
-            <div class="hero-visual">
+            <div class="hero-visual" aria-hidden="true">
               <div class="visual-orbit orbit-one"></div>
               <div class="visual-orbit orbit-two"></div>
 
               <div class="visual-core">
-                <div class="core-icon">◈</div>
-                <div class="core-title">PHYSICS ENGINE</div>
-                <div class="core-subtitle">THREE.JS + WEBXR</div>
+                <div class="core-icon">⬡</div>
+                <div class="core-title">FORMAS Y FÍSICA</div>
+                <div class="core-subtitle">LABORATORIO 3.2</div>
               </div>
 
-              <span class="floating-label label-one">GRAVEDAD</span>
-              <span class="floating-label label-two">COLISIONES</span>
-              <span class="floating-label label-three">HAND TRACKING</span>
+              <span class="floating-label label-one">
+                MOVIMIENTO
+              </span>
+
+              <span class="floating-label label-two">
+                GEOMETRÍA
+              </span>
+
+              <span class="floating-label label-three">
+                INTERACCIÓN
+              </span>
             </div>
           </div>
 
@@ -106,18 +124,19 @@
 
     <section class="statistics">
       <div class="container">
-        <div class="row g-3 text-center">
+        <div class="row g-3">
+
           <div class="col-6 col-md-3">
             <div class="stat-card">
               <strong>04</strong>
-              <span>Mesas físicas</span>
+              <span>Mesas de trabajo</span>
             </div>
           </div>
 
           <div class="col-6 col-md-3">
             <div class="stat-card">
               <strong>20</strong>
-              <span>Figuras geométricas</span>
+              <span>Objetos geométricos</span>
             </div>
           </div>
 
@@ -130,10 +149,11 @@
 
           <div class="col-6 col-md-3">
             <div class="stat-card">
-              <strong>100%</strong>
-              <span>Experiencia VR como objetivo</span>
+              <strong>01</strong>
+              <span>Objetivo: clasificar todo</span>
             </div>
           </div>
+
         </div>
       </div>
     </section>
@@ -142,11 +162,15 @@
       <div class="container">
 
         <div class="section-heading">
-          <span class="section-tag">PROTOCOLO DE MISIÓN</span>
-          <h2>¿Cómo funciona?</h2>
+          <span class="section-tag">
+            GUÍA DE LA ACTIVIDAD
+          </span>
+
+          <h2>Así funciona el taller</h2>
+
           <p>
-            Completa el desafío de clasificación geométrica
-            mediante interacción física en realidad virtual.
+            La actividad combina observación, manipulación
+            y clasificación de cuerpos geométricos.
           </p>
         </div>
 
@@ -154,48 +178,51 @@
 
           <div class="col-md-6 col-lg-3">
             <article class="feature-card">
-              <span class="step-number">01</span>
+              <span class="step-number">PASO 01</span>
               <div class="feature-icon">◉</div>
-              <h3>Explora</h3>
+              <h3>Observa</h3>
               <p>
-                Identifica las cuatro mesas y las veinte
-                figuras distribuidas sobre ellas.
+                Revisa las cuatro mesas y reconoce
+                las distintas figuras distribuidas
+                sobre ellas.
               </p>
             </article>
           </div>
 
           <div class="col-md-6 col-lg-3">
             <article class="feature-card">
-              <span class="step-number">02</span>
+              <span class="step-number">PASO 02</span>
               <div class="feature-icon">✋</div>
               <h3>Manipula</h3>
               <p>
-                Utiliza el gesto de pinza para agarrar
-                y mover figuras con tus manos.
+                En realidad virtual, utiliza tus manos
+                para tomar, mover y soltar los objetos.
               </p>
             </article>
           </div>
 
           <div class="col-md-6 col-lg-3">
             <article class="feature-card">
-              <span class="step-number">03</span>
+              <span class="step-number">PASO 03</span>
               <div class="feature-icon">⬡</div>
               <h3>Clasifica</h3>
               <p>
-                Suelta cada figura dentro del recipiente
-                correspondiente a su categoría.
+                Deposita cada figura en su recipiente
+                y observa cómo actúan las colisiones
+                y la gravedad.
               </p>
             </article>
           </div>
 
           <div class="col-md-6 col-lg-3">
             <article class="feature-card">
-              <span class="step-number">04</span>
-              <div class="feature-icon">▥</div>
-              <h3>Completa</h3>
+              <span class="step-number">PASO 04</span>
+              <div class="feature-icon">▤</div>
+              <h3>Evalúa</h3>
               <p>
-                Consigue veinte aciertos y consulta
-                precisión, errores y tiempos finales.
+                Consulta tus aciertos, errores,
+                precisión y tiempos registrados
+                durante la actividad.
               </p>
             </article>
           </div>
@@ -204,56 +231,87 @@
       </div>
     </section>
 
-    <section class="content-section lab-section" id="laboratorio">
+    <section class="content-section lab-section"
+             id="laboratorio">
       <div class="container">
 
         <div class="section-heading">
-          <span class="section-tag">ENTORNO EXPERIMENTAL</span>
+          <span class="section-tag">
+            ÁREA DE TRABAJO
+          </span>
+
           <h2>Laboratorio interactivo</h2>
+
           <p>
-            La simulación utilizará cuerpos rígidos, gravedad,
-            fricción y colisiones físicas.
+            Un entorno tridimensional desarrollado con
+            Three.js y cannon-es para experimentar
+            con cuerpos físicos.
           </p>
         </div>
 
         <div class="lab-panel">
+
           <div class="lab-toolbar">
             <div class="lab-title">
               <span class="status-dot"></span>
-              NEXUS PHYSICS — SIMULADOR
+              SIMULADOR · NEXUS PHYSICS VR
             </div>
+
             <span id="lab-status" class="lab-status">
-              EN CONSTRUCCIÓN
+              CARGANDO LABORATORIO
             </span>
           </div>
 
-          <div id="scene-container" class="scene-container">
-            <div id="scene-placeholder" class="scene-placeholder">
-              <div class="placeholder-icon">◈</div>
-              <h3>Entorno 3D pendiente</h3>
+          <div id="scene-container"
+               class="scene-container">
+
+            <div id="scene-placeholder"
+                 class="scene-placeholder">
+
+              <div class="placeholder-icon">⬡</div>
+
+              <h3>Preparando la escena</h3>
+
               <p>
-                Aquí integraremos la escena Three.js
-                y el motor de física cannon-es.
+                Cargando el entorno tridimensional
+                y sus componentes físicos.
               </p>
+
             </div>
           </div>
 
           <div class="lab-controls">
-            <button id="start-vr" class="btn btn-primary-vr"
-                    type="button" disabled>
+            <button
+              id="start-vr"
+              type="button"
+              class="btn btn-primary-vr"
+              disabled
+            >
               Iniciar realidad virtual
             </button>
 
-            <button id="reset-lab" class="btn btn-outline-vr"
-                    type="button" disabled>
-              Reiniciar laboratorio
+            <button
+              id="reset-lab"
+              type="button"
+              class="btn btn-outline-vr"
+              disabled
+            >
+              Reiniciar actividad
             </button>
 
-            <span class="control-note" id="xr-status">
-              La experiencia VR estará disponible al integrar WebXR.
+            <span id="xr-status" class="control-note">
+              Comprobando compatibilidad WebXR...
             </span>
           </div>
+
         </div>
+
+        <p class="compatibility-note">
+          La vista de escritorio permite observar la
+          simulación y realizar pruebas técnicas.
+          La manipulación real mediante manos requiere
+          un visor compatible con WebXR.
+        </p>
 
       </div>
     </section>
@@ -262,8 +320,16 @@
       <div class="container">
 
         <div class="section-heading">
-          <span class="section-tag">CLASIFICACIÓN</span>
-          <h2>Cuatro categorías</h2>
+          <span class="section-tag">
+            MATERIAL DE CLASIFICACIÓN
+          </span>
+
+          <h2>Cuatro formas, cuatro categorías</h2>
+
+          <p>
+            Cada tipo de figura tiene un color distintivo
+            y un recipiente asignado.
+          </p>
         </div>
 
         <div class="row g-4">
@@ -272,7 +338,7 @@
             <div class="category-card">
               <span class="shape-icon sphere">●</span>
               <h3>Esferas</h3>
-              <p>5 objetos</p>
+              <p>5 piezas · Azul</p>
             </div>
           </div>
 
@@ -280,7 +346,7 @@
             <div class="category-card">
               <span class="shape-icon cube">■</span>
               <h3>Cubos</h3>
-              <p>5 objetos</p>
+              <p>5 piezas · Rojo</p>
             </div>
           </div>
 
@@ -288,7 +354,7 @@
             <div class="category-card">
               <span class="shape-icon pyramid">▲</span>
               <h3>Pirámides</h3>
-              <p>5 objetos</p>
+              <p>5 piezas · Amarillo</p>
             </div>
           </div>
 
@@ -296,7 +362,7 @@
             <div class="category-card">
               <span class="shape-icon prism">⬡</span>
               <h3>Prismas</h3>
-              <p>5 objetos</p>
+              <p>5 piezas · Verde</p>
             </div>
           </div>
 
@@ -309,25 +375,28 @@
   <footer class="site-footer">
     <div class="container">
       <div class="footer-content">
+
         <div>
-          <strong>NEXUS PHYSICS VR</strong>
-          <p>Práctica 3.2 — Interacción virtual</p>
+          <strong>Taller de Formas</strong>
+          <p>Práctica 3.2 · Interacción virtual</p>
           <p>
             Ingeniería en Tecnologías de la Información
             y Comunicaciones
           </p>
-          <p>TecNM — Campus Pachuca</p>
+          <p>TecNM · Campus Pachuca</p>
         </div>
 
         <div class="footer-right">
-          <p>Autor: Milton Juarez Austria
+          <p>Desarrollo: Milton Juarez Austria</p>
           <p>Three.js · WebXR · cannon-es</p>
-          <p>© 2026 — Proyecto académico</p>
+          <p>Proyecto académico · 2026</p>
         </div>
+
       </div>
     </div>
   </footer>
 
-<script type="module" src="./js/main.js"></script>
+  <script type="module" src="./js/main.js"></script>
+
 </body>
 </html>
