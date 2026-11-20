@@ -5,57 +5,102 @@ import {
   OrbitControls
 } from "three/addons/controls/OrbitControls.js";
 
-import { createLaboratoryScene } from "./scene.js";
-import { createPhysicsWorld, FIXED_STEP } from "./physics.js";
-import { createPieces, syncPieces, CATEGORIES } from "./pieces.js";
-import { createContainers } from "./containers.js";
-import { setupXR } from "./xr.js";
-import { createHandInteraction } from "./interaction.js";
-import { createGame } from "./game.js";
-import { createHUD } from "./hud.js";
+import {
+  createLaboratoryScene
+} from "./scene.js";
+
+import {
+  createPhysicsWorld,
+  FIXED_STEP
+} from "./physics.js";
+
+import {
+  createPieces,
+  syncPieces,
+  CATEGORIES
+} from "./pieces.js";
+
+import {
+  createContainers
+} from "./containers.js";
+
+import {
+  setupXR
+} from "./xr.js";
+
+import {
+  createHandInteraction
+} from "./interaction.js";
+
+import {
+  createGame
+} from "./game.js";
+
+import {
+  createHUD
+} from "./hud.js";
 
 // ============================================
-// NEXUS PHYSICS VR - PRÁCTICA 3.2
+// TALLER DE FORMAS - PRÁCTICA 3.2
 // Three.js + cannon-es + WebXR
 // ============================================
 
-// ELEMENTOS HTML
+// 1. ELEMENTOS HTML
+
 const container = document.getElementById("scene-container");
 const placeholder = document.getElementById("scene-placeholder");
 const status = document.getElementById("lab-status");
 const xrStatus = document.getElementById("xr-status");
+
 const startVRButton = document.getElementById("start-vr");
 const resetButton = document.getElementById("reset-lab");
 
 if (!container) {
-  throw new Error("Falta #scene-container");
+  throw new Error("No se encontró #scene-container");
 }
 
-// ESCENA
-const { scene, tables } = createLaboratoryScene();
+// 2. ESCENARIO
 
-// FÍSICA
+const {
+  scene,
+  tables
+} = createLaboratoryScene();
+
+// 3. MOTOR DE FÍSICA
+
 const {
   world,
   staticBodies,
   addStaticBox
 } = createPhysicsWorld();
 
-// RECIPIENTES Y FIGURAS
-const containers = createContainers(scene, addStaticBox);
+// 4. RECIPIENTES
+
+const containers = createContainers(
+  scene,
+  addStaticBox
+);
+
+// 5. FIGURAS
+
 const pieces = createPieces(scene, world);
 
 world.broadphase.dirty = true;
 
-// CÁMARA
+// 6. CÁMARA
+
 const camera = new THREE.PerspectiveCamera(
-  60, 1, 0.1, 100
+  60,
+  1,
+  0.1,
+  100
 );
 
 camera.position.set(5.2, 4.2, 9.2);
 camera.lookAt(0, 0.7, 1.2);
 
-// RENDERIZADOR
+// 7. RENDERIZADOR
+
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
   powerPreference: "high-performance"
@@ -75,7 +120,8 @@ renderer.xr.enabled = true;
 container.appendChild(renderer.domElement);
 placeholder?.remove();
 
-// CONTROLES DE ESCRITORIO
+// 8. CONTROLES DE ESCRITORIO
+
 const controls = new OrbitControls(
   camera,
   renderer.domElement
@@ -88,46 +134,43 @@ controls.maxDistance = 15;
 controls.maxPolarAngle = Math.PI / 2.05;
 controls.update();
 
-// RESPONSIVIDAD
+// 9. AJUSTE DE PANTALLA
+
 function resizeRenderer() {
-  const w = container.clientWidth;
-  const h = container.clientHeight;
+  const width = container.clientWidth;
+  const height = container.clientHeight;
 
-  if (!w || !h) return;
+  if (!width || !height) return;
 
-  camera.aspect = w / h;
+  camera.aspect = width / height;
   camera.updateProjectionMatrix();
-  renderer.setSize(w, h, false);
+
+  renderer.setSize(width, height, false);
 }
 
 const resizeObserver = new ResizeObserver(resizeRenderer);
 resizeObserver.observe(container);
 resizeRenderer();
 
-// MARCADOR 3D
+// 10. PANEL DE PUNTUACIÓN
+
 const hud = createHUD(scene);
 
-// MARCADOR DE ESCRITORIO
+// MARCADOR EN ESCRITORIO
+
 const scorePreview = document.createElement("div");
 scorePreview.id = "score-preview";
 
 Object.assign(scorePreview.style, {
-  color: "#d6edff",
-  background: "#10243c",
   padding: "14px 20px",
-  borderTop: "1px solid rgba(56,217,255,.2)",
-  fontSize: "14px",
+  fontSize: "13px",
   lineHeight: "1.8",
   textAlign: "center"
 });
 
-container.insertAdjacentElement(
-  "afterend",
-  scorePreview
-);
+container.insertAdjacentElement("afterend", scorePreview);
 
-// JUEGO
-let displayAccumulator = 0;
+// 11. JUEGO
 
 const game = createGame({
   pieces,
@@ -143,7 +186,10 @@ function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
 
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return (
+    String(m).padStart(2, "0") + ":" +
+    String(s).padStart(2, "0")
+  );
 }
 
 function renderScore() {
@@ -153,8 +199,9 @@ function renderScore() {
 
   const categories = Object.entries(data.progress)
     .map(([id, count]) => {
-      const label = CATEGORIES.find(c => c.id === id);
-      return `${label?.name ?? id}: ${count}/5`;
+      const category = CATEGORIES.find(c => c.id === id);
+
+      return `${category?.name ?? id}: ${count}/5`;
     })
     .join(" | ");
 
@@ -169,14 +216,17 @@ function renderScore() {
   if (status) {
     status.textContent =
       data.status === "completado"
-        ? "LABORATORIO COMPLETADO"
+        ? "ACTIVIDAD COMPLETADA"
         : data.status === "jugando"
           ? "CLASIFICACIÓN EN CURSO"
           : "LABORATORIO PREPARADO";
   }
+
+  updateVRButtonLabels();
 }
 
-// BOTÓN COMENZAR EN ESCRITORIO
+// 12. BOTONES DE ESCRITORIO
+
 const startButton = document.createElement("button");
 
 startButton.id = "start-game";
@@ -186,28 +236,32 @@ startButton.className = "btn btn-primary-vr";
 
 const controlBar = document.querySelector(".lab-controls");
 
-if (controlBar) {
-  controlBar.prepend(startButton);
-}
+controlBar?.prepend(startButton);
 
 function startGame() {
-  if (game.start()) {
-    startButton.disabled = true;
-    startButton.textContent = "Partida iniciada";
-    console.log("NEXUS: partida iniciada");
-  }
+  if (!game.start()) return false;
+
+  startButton.disabled = true;
+  startButton.textContent = "Partida iniciada";
+
+  console.log("Partida iniciada");
+
+  return true;
 }
+
+let interaction = null;
 
 function resetGame() {
   interaction?.releaseAll();
+
   game.reset();
 
   startButton.disabled = false;
   startButton.textContent = "Comenzar clasificación";
 
-  console.log(
-    "NEXUS: puntuación reiniciada y figuras redistribuidas"
-  );
+  console.log("Laboratorio reiniciado");
+
+  return true;
 }
 
 startButton.addEventListener("click", startGame);
@@ -218,123 +272,425 @@ if (resetButton) {
 }
 
 // ============================================
-// BOTONES INMERSIVOS EN 3D
+// 13. INTERFAZ DE BOTONES EN REALIDAD VIRTUAL
 // ============================================
 
-function createVRControl(label, x, color) {
+// Este grupo contiene los botones.
+// Su posición se ajustará al entrar en VR.
+
+const vrControls = new THREE.Group();
+
+scene.add(vrControls);
+
+vrControls.visible = false;
+
+let vrControlsPlaced = false;
+
+// Crear botones con textura de Canvas.
+
+function createVRButton(label, x, action, color) {
   const canvas = document.createElement("canvas");
+
   canvas.width = 512;
-  canvas.height = 160;
+  canvas.height = 256;
 
-  const context = canvas.getContext("2d");
-
-  context.fillStyle = color;
-  context.fillRect(0, 0, 512, 160);
-
-  context.strokeStyle = "#ffffff";
-  context.lineWidth = 6;
-  context.strokeRect(5, 5, 502, 150);
-
-  context.font = "bold 53px Arial";
-  context.fillStyle = "#ffffff";
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(label, 256, 80);
+  const ctx = canvas.getContext("2d");
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
 
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    side: THREE.DoubleSide,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false
+  });
+
   const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.55, 0.18),
-    new THREE.MeshBasicMaterial({
-      map: texture,
-      side: THREE.DoubleSide,
-      transparent: true
-    })
+    new THREE.PlaneGeometry(0.66, 0.28),
+    material
   );
 
-  mesh.position.set(x, 1.25, -0.7);
-  scene.add(mesh);
+  mesh.position.set(x, 0, 0);
 
-  return mesh;
+  mesh.renderOrder = 20;
+
+  vrControls.add(mesh);
+
+  const button = {
+    mesh,
+    canvas,
+    ctx,
+    texture,
+    label,
+    action,
+    color,
+    hovered: false
+  };
+
+  drawVRButton(button);
+
+  return button;
 }
 
-const vrStart = createVRControl(
+function drawVRButton(button) {
+  const { ctx, canvas } = button;
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  // Color de fondo.
+  ctx.fillStyle = button.hovered
+    ? "#e8eee9"
+    : button.color;
+
+  ctx.beginPath();
+  ctx.roundRect(12, 12, 488, 232, 30);
+  ctx.fill();
+
+  ctx.lineWidth = 8;
+
+  ctx.strokeStyle = button.hovered
+    ? "#317f78"
+    : "#ffffff";
+
+  ctx.stroke();
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  ctx.font = "bold 55px Arial";
+
+  ctx.fillStyle = button.hovered
+    ? "#223044"
+    : "#ffffff";
+
+  ctx.fillText(
+    button.label,
+    256,
+    128
+  );
+
+  button.texture.needsUpdate = true;
+}
+
+const vrStartButton = createVRButton(
   "COMENZAR",
-  -0.33,
-  "#17698b"
+  -0.38,
+  startGame,
+  "#317f78"
 );
 
-const vrReset = createVRControl(
+const vrResetButton = createVRButton(
   "REINICIAR",
-  0.33,
-  "#9a354c"
+  0.38,
+  resetGame,
+  "#b65c40"
 );
 
-const vrPinchStates = [false, false];
-const pinchPoint = new THREE.Vector3();
+const vrButtons = [
+  vrStartButton,
+  vrResetButton
+];
 
-function checkVRButtons(hands) {
-  if (!renderer.xr.isPresenting) {
-    vrPinchStates.fill(false);
+function updateVRButtonLabels() {
+  if (!vrStartButton || !vrResetButton) return;
+
+  const state = game.getState();
+
+  const label = state.status === "preparado"
+    ? "COMENZAR"
+    : state.status === "completado"
+      ? "FINALIZADO"
+      : "EN CURSO";
+
+  if (vrStartButton.label !== label) {
+    vrStartButton.label = label;
+    drawVRButton(vrStartButton);
+  }
+}
+
+// ============================================
+// 14. POSICIONAMIENTO DE CONTROLES EN VR
+// ============================================
+
+// Al entrar, coloca los botones delante del
+// usuario y ligeramente por debajo de su vista.
+
+const headPosition = new THREE.Vector3();
+const headDirection = new THREE.Vector3();
+
+function positionVRControls() {
+  const xrCamera = renderer.xr.getCamera();
+
+  xrCamera.updateWorldMatrix(true, false);
+
+  xrCamera.getWorldPosition(headPosition);
+  xrCamera.getWorldDirection(headDirection);
+
+  headDirection.y = 0;
+
+  if (headDirection.lengthSq() < 0.0001) {
+    headDirection.set(0, 0, -1);
+  }
+
+  headDirection.normalize();
+
+  vrControls.position.copy(headPosition);
+
+  vrControls.position.addScaledVector(
+    headDirection,
+    0.82
+  );
+
+  vrControls.position.y = Math.max(
+    0.8,
+    headPosition.y - 0.38
+  );
+
+  // Orientar las caras hacia la persona.
+  vrControls.rotation.y = Math.atan2(
+    -headDirection.x,
+    -headDirection.z
+  );
+
+  vrControls.visible = true;
+
+  vrControlsPlaced = true;
+
+  console.log(
+    "Controles VR colocados frente al usuario"
+  );
+}
+
+// ============================================
+// 15. DETECCIÓN DE MANOS
+// ============================================
+
+const handStates = [
+  {
+    pinching: false,
+    touching: null
+  },
+  {
+    pinching: false,
+    touching: null
+  }
+];
+
+const fingerPosition = new THREE.Vector3();
+const thumbPosition = new THREE.Vector3();
+const pinchPosition = new THREE.Vector3();
+const localPosition = new THREE.Vector3();
+
+let lastButtonAction = -Infinity;
+let elapsedInteractionTime = 0;
+
+const BUTTON_COOLDOWN = 0.65;
+
+function getJointWorldPosition(hand, jointName, target) {
+  const joint = hand.joints?.[jointName];
+
+  if (!joint || !joint.visible) {
+    return false;
+  }
+
+  joint.getWorldPosition(target);
+
+  return (
+    Number.isFinite(target.x) &&
+    Number.isFinite(target.y) &&
+    Number.isFinite(target.z)
+  );
+}
+
+// Comprobar si una posición está dentro
+// del área interactiva de un botón.
+
+function insideButton(
+  button,
+  worldPosition,
+  marginZ = 0.16
+) {
+  localPosition.copy(worldPosition);
+
+  button.mesh.worldToLocal(localPosition);
+
+  return (
+    Math.abs(localPosition.x) <= 0.34 &&
+    Math.abs(localPosition.y) <= 0.16 &&
+    Math.abs(localPosition.z) <= marginZ
+  );
+}
+
+function activateVRButton(button) {
+  if (
+    elapsedInteractionTime - lastButtonAction <
+    BUTTON_COOLDOWN
+  ) {
     return;
   }
 
-  hands.forEach((hand, index) => {
-    const thumb = hand.joints?.["thumb-tip"];
-    const finger = hand.joints?.["index-finger-tip"];
+  if (
+    button === vrStartButton &&
+    game.getState().status !== "preparado"
+  ) {
+    return;
+  }
 
-    if (!thumb?.visible || !finger?.visible) {
-      vrPinchStates[index] = false;
-      return;
-    }
+  lastButtonAction = elapsedInteractionTime;
 
-    const a = new THREE.Vector3();
-    const b = new THREE.Vector3();
+  button.action();
 
-    thumb.getWorldPosition(a);
-    finger.getWorldPosition(b);
-
-    const distance = a.distanceTo(b);
-    const pinching = vrPinchStates[index]
-      ? distance < 0.055
-      : distance < 0.035;
-
-    if (pinching && !vrPinchStates[index]) {
-      pinchPoint.copy(a).add(b).multiplyScalar(0.5);
-
-      if (
-        pinchPoint.distanceTo(vrStart.position) < 0.28
-      ) {
-        startGame();
-      } else if (
-        pinchPoint.distanceTo(vrReset.position) < 0.28
-      ) {
-        resetGame();
-      }
-    }
-
-    vrPinchStates[index] = pinching;
-  });
+  console.log(
+    "Botón VR activado:",
+    button.label
+  );
 }
 
 // ============================================
-// WEBXR
+// 16. ACTUALIZACIÓN DE BOTONES CON MANOS
 // ============================================
 
-let interaction = null;
+function updateVRButtons(hands, delta) {
+  if (!renderer.xr.isPresenting) return;
+
+  elapsedInteractionTime += delta;
+
+  vrControls.updateWorldMatrix(true, true);
+
+  const hoveredButtons = new Set();
+
+  hands.forEach((hand, index) => {
+    const state = handStates[index];
+
+    hand.updateWorldMatrix(true, true);
+
+    const indexAvailable = getJointWorldPosition(
+      hand,
+      "index-finger-tip",
+      fingerPosition
+    );
+
+    const thumbAvailable = getJointWorldPosition(
+      hand,
+      "thumb-tip",
+      thumbPosition
+    );
+
+    if (!indexAvailable) {
+      state.pinching = false;
+      state.touching = null;
+      return;
+    }
+
+    const pinchDistance = thumbAvailable
+      ? fingerPosition.distanceTo(thumbPosition)
+      : Infinity;
+
+    const pinching = state.pinching
+      ? pinchDistance < 0.06
+      : pinchDistance < 0.04;
+
+    pinchPosition.copy(fingerPosition);
+
+    if (thumbAvailable) {
+      pinchPosition.add(thumbPosition);
+      pinchPosition.multiplyScalar(0.5);
+    }
+
+    let touchingButton = null;
+
+    for (const button of vrButtons) {
+      // Área de preselección visual.
+      const nearFinger = insideButton(
+        button,
+        fingerPosition,
+        0.24
+      );
+
+      const nearPinch = insideButton(
+        button,
+        pinchPosition,
+        0.28
+      );
+
+      if (nearFinger || nearPinch) {
+        hoveredButtons.add(button);
+      }
+
+      // Contacto directo del dedo índice.
+      if (
+        insideButton(button, fingerPosition, 0.11)
+      ) {
+        touchingButton = button;
+      }
+
+      // Pinza dentro de una zona ampliada.
+      if (
+        pinching &&
+        !state.pinching &&
+        insideButton(button, pinchPosition, 0.28)
+      ) {
+        activateVRButton(button);
+      }
+    }
+
+    // Activación por tocar con el dedo.
+    // Solo se ejecuta al entrar en el área.
+    if (
+      touchingButton &&
+      state.touching !== touchingButton
+    ) {
+      activateVRButton(touchingButton);
+    }
+
+    state.touching = touchingButton;
+    state.pinching = pinching;
+  });
+
+  // Resaltar botones al acercar las manos.
+  for (const button of vrButtons) {
+    const hovered = hoveredButtons.has(button);
+
+    if (button.hovered !== hovered) {
+      button.hovered = hovered;
+      drawVRButton(button);
+    }
+  }
+}
+
+// ============================================
+// 17. CONFIGURACIÓN WEBXR
+// ============================================
 
 const xr = setupXR({
   renderer,
   scene,
   button: startVRButton,
   statusElement: xrStatus,
+
   onSessionEnd: () => {
     interaction?.releaseAll();
+
     controls.enabled = true;
-    vrPinchStates.fill(false);
+
+    vrControls.visible = false;
+    vrControlsPlaced = false;
+
+    for (const state of handStates) {
+      state.pinching = false;
+      state.touching = null;
+    }
   }
 });
+
+// INTERACCIÓN CON FIGURAS
 
 interaction = createHandInteraction({
   hands: xr.hands,
@@ -343,10 +699,11 @@ interaction = createHandInteraction({
 });
 
 // ============================================
-// ACTUALIZACIÓN FÍSICA
+// 18. SIMULACIÓN FÍSICA
 // ============================================
 
 const clock = new THREE.Clock();
+
 let accumulator = 0;
 
 function updatePhysics(delta) {
@@ -359,15 +716,17 @@ function updatePhysics(delta) {
     steps < 4
   ) {
     world.step(FIXED_STEP);
+
     accumulator -= FIXED_STEP;
     steps++;
 
-    // La validación usa el mismo paso fijo
-    // que la simulación de cuerpos rígidos.
     game.update(FIXED_STEP);
   }
 
-  if (steps === 4 && accumulator >= FIXED_STEP) {
+  if (
+    steps === 4 &&
+    accumulator >= FIXED_STEP
+  ) {
     accumulator = 0;
   }
 
@@ -375,17 +734,32 @@ function updatePhysics(delta) {
 }
 
 // ============================================
-// BUCLE PRINCIPAL
+// 19. BUCLE PRINCIPAL
 // ============================================
 
+let displayAccumulator = 0;
+
 function animate() {
-  const delta = Math.min(clock.getDelta(), 1 / 30);
+  const delta = Math.min(
+    clock.getDelta(),
+    1 / 30
+  );
 
   if (renderer.xr.isPresenting) {
     controls.enabled = false;
 
-    checkVRButtons(xr.hands);
+    // Colocar los controles una sola vez
+    // cuando la cámara XR esté disponible.
+    if (!vrControlsPlaced) {
+      positionVRControls();
+    }
+
+    // Primero procesar los botones.
+    updateVRButtons(xr.hands, delta);
+
+    // Después procesar figuras físicas.
     interaction.update(delta);
+
   } else {
     controls.enabled = true;
     controls.update();
@@ -405,23 +779,41 @@ function animate() {
 
 renderer.setAnimationLoop(animate);
 
-renderer.xr.addEventListener("sessionstart", () => {
-  accumulator = 0;
-  clock.getDelta();
-});
-
-renderer.xr.addEventListener("sessionend", () => {
-  accumulator = 0;
-  clock.getDelta();
-});
-
 // ============================================
-// DIAGNÓSTICO EN COMPUTADORA
+// 20. EVENTOS WEBXR
 // ============================================
 
-// Esta función NO forma parte del gameplay.
-// Permite probar gravedad, clasificación y
-// puntuación sin un dispositivo VR.
+renderer.xr.addEventListener(
+  "sessionstart",
+  () => {
+    accumulator = 0;
+    clock.getDelta();
+
+    vrControlsPlaced = false;
+
+    elapsedInteractionTime = 0;
+    lastButtonAction = -Infinity;
+
+    console.log("Sesión WebXR iniciada");
+  }
+);
+
+renderer.xr.addEventListener(
+  "sessionend",
+  () => {
+    accumulator = 0;
+    clock.getDelta();
+
+    vrControls.visible = false;
+    vrControlsPlaced = false;
+
+    console.log("Sesión WebXR finalizada");
+  }
+);
+
+// ============================================
+// 21. HERRAMIENTAS DE DIAGNÓSTICO
+// ============================================
 
 function debugDrop(categoryId, containerId) {
   const piece = pieces.find(p =>
@@ -437,22 +829,23 @@ function debugDrop(categoryId, containerId) {
 
   if (!piece || !target) {
     console.warn(
-      "Figura o recipiente no disponible",
-      categoryId,
-      containerId
+      "Figura o recipiente no disponible"
     );
     return false;
   }
 
   if (game.getState().status !== "jugando") {
-    console.warn("Primero presiona Comenzar clasificación.");
+    console.warn(
+      "Primero presiona Comenzar clasificación"
+    );
     return false;
   }
 
   const body = piece.body;
 
-  body.type = 1; // CANNON.Body.DYNAMIC
+  body.type = 1;
   body.mass = piece.originalMass ?? 0.35;
+
   body.updateMassProperties();
 
   body.position.set(
@@ -478,26 +871,35 @@ function debugDrop(categoryId, containerId) {
   world.broadphase.dirty = true;
 
   console.log(
-    `Prueba: ${categoryId} soltada en ${containerId}`
+    `Prueba: ${categoryId} en ${containerId}`
   );
 
   return true;
 }
 
 // ============================================
-// ESTADÍSTICAS
+// 22. ESTADÍSTICAS
 // ============================================
 
 const categoryCounts = Object.fromEntries(
   CATEGORIES.map(category => [
     category.id,
-    pieces.filter(p => p.category === category.id).length
+    pieces.filter(
+      p => p.category === category.id
+    ).length
   ])
 );
 
-const tableCounts = tables.map((_, index) =>
-  pieces.filter(p => p.tableIndex === index).length
+const tableCounts = tables.map(
+  (_, index) =>
+    pieces.filter(
+      p => p.tableIndex === index
+    ).length
 );
+
+// ============================================
+// 23. DEPURACIÓN
+// ============================================
 
 window.NEXUS_DEBUG = {
   scene,
@@ -514,18 +916,29 @@ window.NEXUS_DEBUG = {
   hud,
   xr,
   interaction,
+  vrControls,
+  vrButtons,
   startGame,
   resetGame,
   debugDrop
 };
 
-console.log("NEXUS PHYSICS VR — Inicializado");
+// ============================================
+// 24. VERIFICACIÓN INICIAL
+// ============================================
+
+console.log(
+  "TALLER DE FORMAS - Laboratorio iniciado"
+);
+
 console.log("Three.js:", THREE.REVISION);
 console.log("Mesas:", tables.length);
 console.log("Figuras:", pieces.length);
 console.log("Recipientes:", containers.length);
 console.log("Cuerpos físicos:", world.bodies.length);
-console.log("Por mesa:", tableCounts);
-console.log("Por categoría:", categoryCounts);
+
+console.log(
+  "Controles VR: contacto y pinza configurados"
+);
 
 renderScore();
