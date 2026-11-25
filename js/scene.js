@@ -1,11 +1,11 @@
-
+﻿
 import * as THREE from "three";
 
 export const TABLE_POSITIONS = [
-  { x: -1.65, z: -1.2 },
-  { x: 1.65, z: -1.2 },
-  { x: -1.65, z: 1.2 },
-  { x: 1.65, z: 1.2 }
+  { x: -3.15, z: -1.20 },
+  { x: -1.05, z: -1.20 },
+  { x:  1.05, z: -1.20 },
+  { x:  3.15, z: -1.20 }
 ];
 
 export const TABLE_SIZE = {
@@ -200,3 +200,4 @@ export function createLaboratoryScene() {
     tables
   };
 }
+

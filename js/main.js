@@ -1,4 +1,4 @@
-
+﻿
 import * as THREE from "three";
 
 import {
@@ -145,7 +145,9 @@ function resizeRenderer() {
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
 
-  renderer.setSize(width, height, false);
+  if (!renderer.xr.isPresenting) {
+    renderer.setSize(width, height, false);
+  }
 }
 
 const resizeObserver = new ResizeObserver(resizeRenderer);
@@ -265,6 +267,26 @@ function resetGame() {
 }
 
 startButton.addEventListener("click", startGame);
+// NEXUS_TECLADO_SEGURO_32
+// Alternativa para pruebas sin visor fisico.
+window.addEventListener("keydown", (event) => {
+  if (event.repeat || event.altKey || event.ctrlKey) {
+    return;
+  }
+
+  if (event.code === "F6") {
+    event.preventDefault();
+    startGame();
+    console.log("NEXUS: inicio desde teclado");
+  }
+
+  if (event.code === "F7") {
+    event.preventDefault();
+    resetGame();
+    console.log("NEXUS: reinicio desde teclado");
+  }
+});
+
 
 if (resetButton) {
   resetButton.disabled = false;
@@ -426,45 +448,28 @@ const headPosition = new THREE.Vector3();
 const headDirection = new THREE.Vector3();
 
 function positionVRControls() {
-  const xrCamera = renderer.xr.getCamera();
+  // NEXUS_BOTONES_FIJOS_32
+  // Estacion fija lateral.
+  // Ya no sigue la cabeza del usuario.
 
-  xrCamera.updateWorldMatrix(true, false);
+  if (vrControlsPlaced) return;
 
-  xrCamera.getWorldPosition(headPosition);
-  xrCamera.getWorldDirection(headDirection);
+  vrControls.position.set(-4.10, 1.25, 0.95);
 
-  headDirection.y = 0;
+  // Mirar hacia la zona central del laboratorio.
+  vrControls.lookAt(0, 1.10, -0.20);
 
-  if (headDirection.lengthSq() < 0.0001) {
-    headDirection.set(0, 0, -1);
-  }
+  vrControls.rotation.x = 0;
+  vrControls.rotation.z = 0;
 
-  headDirection.normalize();
-
-  vrControls.position.copy(headPosition);
-
-  vrControls.position.addScaledVector(
-    headDirection,
-    0.82
-  );
-
-  vrControls.position.y = Math.max(
-    0.8,
-    headPosition.y - 0.38
-  );
-
-  // Orientar las caras hacia la persona.
-  vrControls.rotation.y = Math.atan2(
-    -headDirection.x,
-    -headDirection.z
-  );
-
+  vrControls.scale.setScalar(0.85);
   vrControls.visible = true;
-
   vrControlsPlaced = true;
 
+  vrControls.updateMatrixWorld(true);
+
   console.log(
-    "Controles VR colocados frente al usuario"
+    "NEXUS 3.2: botones VR fijos en estacion lateral"
   );
 }
 
@@ -690,6 +695,144 @@ const xr = setupXR({
   }
 });
 
+// ============================================
+// NEXUS_PROTECCION_XR_32
+// EVITAR SALIDA ACCIDENTAL DE WEBXR
+// ============================================
+
+// Bloquear el boton HTML de salir mientras
+// la sesion inmersiva esta activa.
+// La salida voluntaria sigue disponible
+// mediante el menu del visor o emulador.
+
+function protegerBotonSalidaXR(event) {
+  if (!renderer.xr.isPresenting) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  console.warn(
+    "NEXUS: clic accidental de salida bloqueado"
+  );
+}
+
+if (startVRButton) {
+  startVRButton.addEventListener(
+    "click",
+    protegerBotonSalidaXR,
+    true
+  );
+
+  renderer.xr.addEventListener(
+    "sessionstart",
+    () => {
+      startVRButton.style.pointerEvents = "none";
+
+      console.log(
+        "NEXUS: proteccion de salida XR activada"
+      );
+    }
+  );
+
+  renderer.xr.addEventListener(
+    "sessionend",
+    () => {
+      startVRButton.style.pointerEvents = "";
+
+      console.warn(
+        "NEXUS: sesion XR terminada por navegador, emulador u otra llamada de salida"
+      );
+    }
+  );
+}
+
+// Evitar que el contenedor cambie de tamano
+// durante una sesion VR.
+
+const nexusResizeObserver = new ResizeObserver(() => {
+  if (renderer.xr.isPresenting) return;
+  resizeRenderer();
+});
+
+nexusResizeObserver.observe(container);
+
+// ============================================
+// ===============================================
+// NEXUS_CONTROLADORES_COMPATIBLES_32
+// SOPORTE PARA CONTROLADORES DEL EMULADOR
+// ===============================================
+
+const nexusSelector = new THREE.Raycaster();
+const nexusOrigen = new THREE.Vector3();
+const nexusDireccion = new THREE.Vector3();
+const nexusRotacion = new THREE.Matrix4();
+
+function nexusActivarDesdeControl(control) {
+  if (!renderer.xr.isPresenting) return;
+
+  control.updateWorldMatrix(true, false);
+  vrControls.updateWorldMatrix(true, true);
+
+  control.getWorldPosition(nexusOrigen);
+
+  nexusRotacion.extractRotation(
+    control.matrixWorld
+  );
+
+  nexusDireccion.set(0, 0, -1)
+    .transformDirection(nexusRotacion);
+
+  nexusSelector.set(
+    nexusOrigen,
+    nexusDireccion
+  );
+
+  nexusSelector.far = 5;
+
+  const impactos = nexusSelector.intersectObjects(
+    vrButtons.map(b => b.mesh),
+    false
+  );
+
+  if (!impactos.length) return;
+
+  const boton = vrButtons.find(
+    b => b.mesh === impactos[0].object
+  );
+
+  if (!boton) return;
+
+  console.log(
+    "NEXUS: gatillo VR detectado:",
+    boton.label
+  );
+
+  activateVRButton(boton);
+}
+
+// Crear controladores del emulador.
+// Las manos originales permanecen intactas.
+
+const nexusControllers = [];
+
+for (let i = 0; i < 2; i++) {
+  const control = renderer.xr.getController(i);
+
+  scene.add(control);
+
+  control.addEventListener(
+    "selectstart",
+    () => nexusActivarDesdeControl(control)
+  );
+
+  nexusControllers.push(control);
+}
+
+console.log(
+  "NEXUS: controladores VR preparados"
+);
+
+// ===============================================
 // INTERACCIÓN CON FIGURAS
 
 interaction = createHandInteraction({
@@ -942,3 +1085,8 @@ console.log(
 );
 
 renderScore();
+
+
+
+
+

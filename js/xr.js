@@ -1,4 +1,4 @@
-
+﻿
 import {
   XRHandModelFactory
 } from "three/addons/webxr/XRHandModelFactory.js";
@@ -145,7 +145,7 @@ export function setupXR({
 
       await renderer.xr.setSession(session);
 
-      setButton("Salir de realidad virtual", false);
+      setButton("Realidad virtual activa", true);
 
       setStatus(
         "Sesión VR activa. Usa tus manos para tomar las figuras."
@@ -184,6 +184,10 @@ export function setupXR({
     if (!session) return;
 
     try {
+      // NEXUS_TRAZA_CIERRE_32
+      console.trace(
+        "NEXUS: nuestro codigo solicito terminar WebXR"
+      );
       await session.end();
     } catch (error) {
       console.error(
@@ -231,10 +235,15 @@ export function setupXR({
   if (button) {
     button.addEventListener("click", () => {
       if (renderer.xr.isPresenting) {
-        endSession();
-      } else {
+          // NEXUS_XR_SALIDA_SEGURA_32
+          // Nunca terminar VR desde un clic accidental.
+          console.warn(
+            "NEXUS: salida accidental bloqueada"
+          );
+          return;
+        }
+
         startSession();
-      }
     });
   }
 
@@ -248,3 +257,5 @@ export function setupXR({
     isSupported: () => supported
   };
 }
+
+

@@ -1,4 +1,4 @@
-
+﻿
 /* ==========================================
    TALLER DE FORMAS
    Sistema de sonido con Web Audio API
@@ -45,7 +45,7 @@ function tone({
   const end = start + duration;
 
   const oscillator = ctx.createOscillator();
-  const gain = ctx.createGainNode();
+  const gain = ctx.createGain();
 
   oscillator.type = wave;
 
@@ -222,3 +222,4 @@ if (document.readyState === "loading") {
 } else {
   initAudioControls();
 }
+
